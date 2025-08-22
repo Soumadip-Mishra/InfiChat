@@ -1,0 +1,68 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: all;
+}
+@keyframes slow-pulse {
+  0% {
+    transform: scale(0.5);
+    background-color: var(--color-secondary); 
+    opacity: 1;
+  }
+  30% {
+    transform: scale(0.75);
+    background-color: var(--color-secondary); 
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    background-color: var(--color-secondary); 
+    opacity: 0;
+  }
+}
+
+.pulse-circle {
+  animation: slow-pulse 2s ease-out infinite;
+}
+
+
+@keyframes gradient-animation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+.rainbow-text {
+    background-size: 600% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: gradient-animation 8s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform:  scaleX(1);
+  }
+  25% {
+    transform:  scaleX(0.2); 
+  }
+  50% {
+    transform: scaleX(-1);
+  }
+  75% {
+    transform:  scaleX(-0.2);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.rotating-text  {
+  
+  animation: rotate 8s linear infinite;
+}

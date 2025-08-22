@@ -1,0 +1,48 @@
+import { create } from "zustand";
+
+export const useThemeStore = create((set, get) => ({
+	themes: [
+		"light",
+		"dark",
+		"cupcake",
+		"bumblebee",
+		"emerald",
+		"corporate",
+		"synthwave",
+		"retro",
+		"cyberpunk",
+		"valentine",
+		"halloween",
+		"garden",
+		"forest",
+		"aqua",
+		"lofi",
+		"pastel",
+		"fantasy",
+		"wireframe",
+		"black",
+		"luxury",
+		"dracula",
+		"cmyk",
+		"autumn",
+		"business",
+		"acid",
+		"lemonade",
+		"night",
+		"coffee",
+		"winter",
+		"dim",
+		"nord",
+		"sunset",
+		"caramellatte",
+		"abyss",
+		"silk",
+	],
+	currTheme:
+		localStorage.getItem("theme") !== null
+			? localStorage.getItem("theme")
+			: "cofee",
+	setTheme: async (theme) => {
+		set({ currTheme: theme });
+	},
+}));
