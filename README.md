@@ -2,10 +2,8 @@
 
 A modern real-time chat application built with the MERN stack, featuring AI integration, group chats and much more.
 
-**🔗 Live Demo:** [**InfiChat**](https://infichat-soumadip.netlify.app/) 
+**Live Site** → [https://infichat-soumadip.netlify.app](https://infichat-soumadip.netlify.app)
 ---
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/c26bf3c0-2e16-46c8-80f3-5f38b95ca22c/deploy-status)](https://app.netlify.com/projects/infichat-soumadip/deploys)
 
 ---
 
@@ -15,7 +13,7 @@ A modern real-time chat application built with the MERN stack, featuring AI inte
 -   **🔍 Message Search** for quick lookups
 -   **🖼️ Image Sharing** with Cloudinary storage
 -   **🤖 AI Assistant (Gemini)** via Google GenAI
--   **🔔 Typing Indicators** in real-time
+-   **🔔 Typing & Online Indicators** in real-time
 -   **📜 Infinite Scroll** with Timestamps & Dates
 -   **🎨 35+ Themes** with Tailwind + DaisyUI
 -   **🔒 JWT Authentication** + Password Hashing
