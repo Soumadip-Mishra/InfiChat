@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:${PORT}"
+    env_file:
+      - .env
+    command: ["node", "src/index.js"]
+    volumes:
+      - .:/app               
+      - /app/node_modules 
+    
