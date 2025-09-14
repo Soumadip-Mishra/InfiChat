@@ -57,7 +57,8 @@ export const sendPrivateMessage = async (req, res) => {
 		const sID = req.user._id;
 		const text = req.body.text;
 		let finalImageURL = "";
-
+        console.log("hi");
+        
 		if (req.file) {
 			const uploadRes = await cloudinary.uploader.upload(req.file.path, {
 				folder: "chat-app/messages",
@@ -95,7 +96,7 @@ export const sendPrivateMessage = async (req, res) => {
 			{ upsert: true }
 		);
 
-		const recieverSocketId = getRecieverSocketId(rID);
+		const recieverSocketId = await getRecieverSocketId(rID);
 		if (recieverSocketId) {
 			io.to(recieverSocketId).emit("newMessage", {
 				type: "user",
@@ -187,9 +188,10 @@ export const sendGroupMessage = async (req, res) => {
 		);
 
 		const members = group.members;
-		members.forEach((member) => {
+        
+		await Promise.all(members.forEach(async(member) => {
 			if (member.toString() !== req.user._id.toString()) {
-				const recieverSocketId = getRecieverSocketId(member);
+				const recieverSocketId = await getRecieverSocketId(member);
 				if (recieverSocketId) {
 					io.to(recieverSocketId).emit("newMessage", {
 						type: "group",
@@ -197,7 +199,7 @@ export const sendGroupMessage = async (req, res) => {
 					});
 				}
 			}
-		});
+		}));
 		message.senderID = req.user;
 		res.status(200).json(message);
 	} catch (error) {
@@ -217,9 +219,10 @@ export const addTyping = async (req, res) => {
 			const members = (await Group.findById(gID).select("members"))
 				.members;
 
-			members.map((rID) => {
+            await Promise.all(
+			members.map(async(rID) => {
 				if (rID.toString() !== sID.toString()) {
-					const recieverSocketId = getRecieverSocketId(rID);
+					const recieverSocketId = await getRecieverSocketId(rID);
 					if (recieverSocketId) {
 						io.to(recieverSocketId).emit("addTyping", {
 							group: true,
@@ -227,12 +230,12 @@ export const addTyping = async (req, res) => {
 						});
 					}
 				}
-			});
+			}));
 		} else {
 			const { id: rID } = req.params;
 			const sID = req.user._id;
 
-			const recieverSocketId = getRecieverSocketId(rID);
+			const recieverSocketId = await getRecieverSocketId(rID);
 			if (recieverSocketId) {
 				io.to(recieverSocketId).emit("addTyping", {
 					group: false,
@@ -254,9 +257,10 @@ export const removeTyping = async (req, res) => {
 			const members = (await Group.findById(gID).select("members"))
 				.members;
 
-			members.map((rID) => {
+            await Promise.all(
+			members.map(async(rID) => {
 				if (rID.toString() !== sID.toString()) {
-					const recieverSocketId = getRecieverSocketId(rID);
+					const recieverSocketId = await getRecieverSocketId(rID);
 					if (recieverSocketId) {
 						io.to(recieverSocketId).emit("removeTyping", {
 							group: true,
@@ -264,11 +268,11 @@ export const removeTyping = async (req, res) => {
 						});
 					}
 				}
-			});
+			}));
 		} else {
 			const { id: rID } = req.params;
 			const sID = req.user._id;
-			const recieverSocketId = getRecieverSocketId(rID);
+			const recieverSocketId = await getRecieverSocketId(rID);
 			if (recieverSocketId) {
 				io.to(recieverSocketId).emit("removeTyping", {
 					group: false,
