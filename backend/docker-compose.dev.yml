@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    deploy:
+    deploys:
       replicas: 4
 
   nginx:

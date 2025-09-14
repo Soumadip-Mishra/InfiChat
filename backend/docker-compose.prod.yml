@@ -11,6 +11,5 @@ services:
     volumes:
       - .:/app               
       - /app/node_modules 
-      
     deploy:
       replicas: 1
