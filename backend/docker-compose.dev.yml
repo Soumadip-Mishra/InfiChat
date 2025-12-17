@@ -9,8 +9,8 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    deploys:
-      replicas: 4
+    deploy:
+      replicas: 1
 
   nginx:
     image: nginx:alpine

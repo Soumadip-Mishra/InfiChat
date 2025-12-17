@@ -83,7 +83,7 @@ export const prompt = async (req, res) => {
 			}
 		}
 		const chat = ai.chats.create({
-			model: "gemini-2.5-pro",
+			model: "gemini-2.5-flash",
 			history: history,
 		});
 
@@ -108,7 +108,7 @@ export const prompt = async (req, res) => {
 			];
 
 			response = await ai.models.generateContent({
-				model: "gemini-2.5-pro",
+				model: "gemini-2.5-flash",
 				contents: contents,
 			});
 		}
