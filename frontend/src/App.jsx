@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import "./index.css";
 import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
@@ -16,7 +16,18 @@ const App = () => {
 	const { currTheme } = useThemeStore();
 	const { authUser, checkAuth } = useAuthStore();
 	const { setFullScreenImage, fullScreenImage } = useGlobalStore();
-    
+
+	useEffect(() => {
+		toast("Hello! \n If the website was inactive, kindly wait for a minute for the backend to start", {
+			icon: "👏",
+			style: {
+				borderRadius: "10px",
+				background: "#333",
+				color: "#fff",
+			},
+		});
+	}, []);
+
 	useEffect(() => {
 		checkAuth();
 	}, [checkAuth]);

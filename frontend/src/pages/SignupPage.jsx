@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import toast from "react-hot-toast";
 import { useAuthStore } from "../store/authStore";
 import Community from "../assets/community.jpg";
 import AnimatedLogo from "../components/AnimatedLogo";
