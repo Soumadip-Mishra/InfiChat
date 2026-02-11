@@ -2,7 +2,7 @@ import { Redis } from "ioredis";
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 
-import http from "http";
+import http, { get } from "http";
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
@@ -38,6 +38,14 @@ io.on("connection", async (socket) => {
 	const userId = socket.handshake.query.userId;
 
 	if (userId) {
+		const prevSocketId = await getRecieverSocketId(userId);
+		if (prevSocketId) {
+			await redis.hdel("online_users", userId);
+			const previousSocket = io.sockets.sockets.get(prevSocketId);
+			if (previousSocket) {
+				previousSocket.disconnect(true);
+			}
+		}
 		await redis.hset("online_users", userId, socket.id);
 	}
 
@@ -52,7 +60,7 @@ io.on("connection", async (socket) => {
 
 		const allUsers = await redis.hkeys("online_users");
 		io.emit("onlineUsers", allUsers);
-	}) ;
-}) ;
+	});
+});
 
-export { app, io, server } ;
+export { app, io, server };

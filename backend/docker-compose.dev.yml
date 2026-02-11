@@ -9,8 +9,9 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    deploy:
-      replicas: 1
+    #Not required without docker swarm
+    # deploy: 
+    #   replicas: 3
 
   nginx:
     image: nginx:alpine
