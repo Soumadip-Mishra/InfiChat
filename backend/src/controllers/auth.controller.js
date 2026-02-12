@@ -3,6 +3,7 @@ import fs from "fs";
 import User from "../models/user.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { generateToken, getPublicID } from "../lib/utils.js";
+import { generatePublicPrivateKey, encryptWithPassword, decryptWithPassword } from "../lib/crypto.js";
 import Group from "../models/group.model.js";
 
 export const signUp = async (req, res) => {
@@ -39,13 +40,18 @@ export const signUp = async (req, res) => {
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
+        const { privateKey, publicKey } = await generatePublicPrivateKey();
+        const hashedPrivateKey = await encryptWithPassword(privateKey, password);
 		const newUser = new User({
 			name,
 			email,
 			password: hashedPassword,
+            publicKey,
+            privateKey: hashedPrivateKey,
 		});
 		generateToken(newUser._id, res);
 		await newUser.save();
+        newUser.privateKey = privateKey;
 		return res.status(201).json(newUser);
 	} catch (error) {
 		console.log("Error in sign-up ", error);
@@ -69,6 +75,8 @@ export const logIn = async (req, res) => {
 			return;
 		}
 		generateToken(user._id, res);
+        const decryptedPrivateKey = await decryptWithPassword(user.privateKey, password);
+        user.privateKey = decryptedPrivateKey;
 		return res.status(201).json(user);
 	} catch (error) {
 		console.log("Error in login ", error);
@@ -118,7 +126,7 @@ export const changePic = async (req, res) => {
 		res.status(200).json(user);
 	} catch (error) {
 		console.log("Error in changing profile pic", error);
-		res.status(400).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -138,7 +146,7 @@ export const changeName = async (req, res) => {
 		await user.save();
 		res.status(200).json(user);
 	} catch (error) {
-		res.status(400).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error" });
 		console.log("Error in changing name", error);
 	}
 };
@@ -177,7 +185,7 @@ export const changePassword = async (req, res) => {
 		await user.save();
 		res.status(200).json(user);
 	} catch (error) {
-		res.status(400).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error" });
 		console.log("Error in changing password", error);
 	}
 };

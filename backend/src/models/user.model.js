@@ -16,6 +16,14 @@ const UserSchema = new mongoose.Schema(
 			minlength: 6,
 			required: true,
 		},
+        publicKey: {
+			type: String,
+			required: true,
+		},
+        privateKey: {
+			type: String,
+			required: true,
+		},
 		profilePic: {
 			type: String,
 			default: "",
