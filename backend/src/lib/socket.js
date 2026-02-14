@@ -60,6 +60,10 @@ io.on("connection", async (socket) => {
 
 		const allUsers = await redis.hkeys("online_users");
 		io.emit("onlineUsers", allUsers);
+        io.emit("removeTyping", {
+            group: false,
+            sID: userId,
+        }); 
 	});
 });
 

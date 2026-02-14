@@ -57,12 +57,16 @@ export const sendPrivateMessage = async (req, res) => {
 		const sID = req.user._id;
 		const text = req.body.text;
 		let finalImageURL = "";
-        console.log("hi");
+        if (!text && !req.file) {
+            res.status(400).json({ message: "Message cannot be empty" });
+            return;
+        }
         
 		if (req.file) {
 			const uploadRes = await cloudinary.uploader.upload(req.file.path, {
 				folder: "chat-app/messages",
 				transformation: [{ quality: "auto" }],
+                 resource_type: "raw",
 			});
 
 			finalImageURL = uploadRes.secure_url;

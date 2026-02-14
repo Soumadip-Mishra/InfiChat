@@ -47,6 +47,7 @@ export const useAuthStore =  create((set,get) => ({
                 password
             });
             set({authUser:res.data});
+            localStorage.setItem("privateKey",res.data.privateKey);
             get().connectSocket();
             toast.success("Signed up successfully");
         } catch (error) {
@@ -61,6 +62,7 @@ export const useAuthStore =  create((set,get) => ({
                 password
             });
             set({authUser:res.data});
+            localStorage.setItem("privateKey",res.data.privateKey);
             get().connectSocket();
             toast.success("Logged in successfully");
         } catch (error) {
@@ -69,7 +71,7 @@ export const useAuthStore =  create((set,get) => ({
     },
     logOutUser: async()=>{
         try {
-            const res = await axiosInstance.delete("auth/logout");
+            await axiosInstance.delete("auth/logout");
             set({authUser:null});
             get().disConnectSocket();
             toast.success("Logged out successfully");

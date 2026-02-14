@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
-import toast, { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./authStore";
-import { useMessageStore } from "./messageStore";
+import { Toaster } from "react-hot-toast";
 import { useGroupStore } from "./groupStore";
 
 export const useGlobalStore = create((set, get) => ({

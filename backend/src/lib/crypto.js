@@ -2,7 +2,7 @@ import crypto from 'crypto'
 
 export const generatePublicPrivateKey = async () => {
 	const key = crypto.generateKeyPairSync("ec", {
-		namedCurve: "secp256k1",
+		namedCurve: "prime256v1",
 		publicKeyEncoding: { type: "spki", format: "pem" },
 		privateKeyEncoding: { type: "pkcs8", format: "pem" },
 	});
