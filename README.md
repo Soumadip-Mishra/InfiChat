@@ -1,6 +1,6 @@
 # InfiChat 💬
 
-A modern real-time chat application built with the MERN stack, featuring AI integration, group chats and much more.
+A modern real-time chat application built with the MERN stack, featuring **E2E encryption** , AI integration, group chats and much more.
 
 **Live Site** → [https://infichat-soumadip.netlify.app](https://infichat-soumadip.netlify.app)
 ---
@@ -17,7 +17,8 @@ A modern real-time chat application built with the MERN stack, featuring AI inte
 -   **📜 Infinite Scroll** with Timestamps & Dates
 -   **🎨 35+ Themes** with Tailwind + DaisyUI
 -   **🔒 JWT Authentication** + Password Hashing
--   **📝 Profile & Group Editing** – Update user and group details easily  
+-   **📝 Profile & Group Editing** – Update user and group details easily
+-   **🔐 End-to-End Encryption** – Messages secured with ECDH + AES-GCM 
 ---
 
 ## 🛠️ Tech Stack
@@ -33,9 +34,9 @@ A modern real-time chat application built with the MERN stack, featuring AI inte
 -   **🔔 React Hot Toast** – Notifications for actions/events
 -   **🛣️ React Router v7** – Navigation and routing
 -   **😊 Lucide-React & Lordicon** – Icons and animated graphics
+-   **🔐 Web Crypto API** – Native browser E2EE cryptography (ECDH + AES-GCM)
 
 ### 🔧 Backend
-
 -   **🟢 Node.js + Express 5** – Server framework
 -   **🍃 MongoDB + Mongoose** – Database & ODM for models
 -   **🔑 JWT (jsonwebtoken)** – Authentication
@@ -48,6 +49,9 @@ A modern real-time chat application built with the MERN stack, featuring AI inte
 -   **☁️ Cloudinary** – Image hosting/CDN integration
 -   **⚙️ dotenv** – Environment variable management
 -   **🤖 @google/genai** – Google Generative AI SDK for Gemini bot
+-   **🔐 Node.js crypto** – Built-in server-side cryptography for public-private key generation
+-   **🔴 Redis + Socket.IO Redis Adapter** – Pub/sub adapter for scaling Socket.IO across multiple instances
+-   **🔀 Nginx** – Reverse proxy and load balancer for containerized deployment
 
 ### 🚀 Hosting
 
@@ -65,6 +69,7 @@ To get a local copy up and running, follow these simple steps.
 -   Node.js (v18 or later)
 -   npm / yarn / pnpm
 -   MongoDB (local instance or a cloud URI from MongoDB Atlas)
+-   Docker CLI & Docker Engine – for containerized deployment
 
 ### Installation
 
@@ -74,26 +79,20 @@ To get a local copy up and running, follow these simple steps.
     cd InfiChat
     ```
 
-2.  **Install Backend Dependencies:**
+2.  **Install Frontend Dependencies:**
     ```sh
-    cd backend
+    cd frontend
     npm install
     ```
 
-3.  **Install Frontend Dependencies:**
-    ```sh
-    cd ../frontend
-    npm install
-    ```
-
-4.  **Set up Environment Variables:**
+3.  **Set up Environment Variables:**
     -   Create a `.env` file in the `backend` and `frontend`  directory.
     -   Copy the contents from `.env.example` (see below) and fill in your values.
 
-5.  **Run the application:**
+4.  **Run the application:**
     -   Start the backend server (from the `backend` folder):
         ```sh
-        npm run dev
+        docker compose -f "docker-compose.dev.yml" up
         ```
     -   Start the frontend development server (from the `frontend` folder):
         ```sh
