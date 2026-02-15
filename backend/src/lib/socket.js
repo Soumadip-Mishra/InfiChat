@@ -19,8 +19,8 @@ const pubClient = new Redis(process.env.REDIS_URL);
 
 const subClient = pubClient.duplicate();
 
-pubClient.on("error", (err) => console.error("REDIS ERROR", err));
-subClient.on("error", (err) => console.error("REDIS ERROR", err));
+pubClient.on("error", (error) => console.error("REDIS ERROR", error));
+subClient.on("error", (error) => console.error("REDIS ERROR", error));
 
 const io = new Server(server, {
 	cors: {

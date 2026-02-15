@@ -41,7 +41,7 @@ export const useThemeStore = create((set, get) => ({
 	currTheme:
 		localStorage.getItem("theme") !== null
 			? localStorage.getItem("theme")
-			: "cofee",
+			: "coffee",
 	setTheme: async (theme) => {
 		set({ currTheme: theme });
 	},

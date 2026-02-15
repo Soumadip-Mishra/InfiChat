@@ -12,7 +12,7 @@ export const usersSidebar = async (req, res) => {
 	try {
 		let sID = req.user._id;
 		const users = await User.find({ _id: { $ne: sID } }).select(
-			"-password"
+			"-password",
 		);
 		const filteredUsers = await PrivateLastMessage.find({ currUserID: sID })
 			.sort({ time: -1 })
@@ -29,7 +29,7 @@ export const usersSidebar = async (req, res) => {
 		});
 		res.status(200).json(sortedUsers);
 	} catch (error) {
-		console.log("Error in loading side users " + error);
+		console.error("Error in loading side users " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -46,7 +46,7 @@ export const getPrivateMessage = async (req, res) => {
 		}).sort({ createdAt: 1 });
 		res.status(200).json(messages);
 	} catch (error) {
-		console.log("Error in loading messages " + error);
+		console.error("Error in loading messages " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -57,16 +57,16 @@ export const sendPrivateMessage = async (req, res) => {
 		const sID = req.user._id;
 		const text = req.body.text;
 		let finalImageURL = "";
-        if (!text && !req.file) {
-            res.status(400).json({ message: "Message cannot be empty" });
-            return;
-        }
-        
+		if (!text && !req.file) {
+			res.status(400).json({ message: "Message cannot be empty" });
+			return;
+		}
+
 		if (req.file) {
 			const uploadRes = await cloudinary.uploader.upload(req.file.path, {
 				folder: "chat-app/messages",
 				transformation: [{ quality: "auto" }],
-                 resource_type: "raw",
+				resource_type: "raw",
 			});
 
 			finalImageURL = uploadRes.secure_url;
@@ -88,7 +88,7 @@ export const sendPrivateMessage = async (req, res) => {
 				targetUserID: rID,
 				time: new Date(newMessage.createdAt).toISOString(),
 			},
-			{ upsert: true }
+			{ upsert: true },
 		);
 		await PrivateLastMessage.replaceOne(
 			{ currUserID: rID, targetUserID: sID },
@@ -97,7 +97,7 @@ export const sendPrivateMessage = async (req, res) => {
 				targetUserID: sID,
 				time: new Date(newMessage.createdAt).toISOString(),
 			},
-			{ upsert: true }
+			{ upsert: true },
 		);
 
 		const recieverSocketId = await getRecieverSocketId(rID);
@@ -107,7 +107,6 @@ export const sendPrivateMessage = async (req, res) => {
 				message: newMessage,
 			});
 		}
-
 		res.status(200).json(newMessage);
 	} catch (error) {
 		console.error("Error sending message:", error);
@@ -130,22 +129,21 @@ export const getGroupMessage = async (req, res) => {
 			return;
 		}
 		const messages = await GroupMessage.find({
-			recieverID: groupID,
-		})
-			.sort({ createdAt: 1 })
-			.populate("senderID", "-password");
+			groupID: groupID,
+			recieverID: userID,
+		}).sort({ createdAt: 1 });
 
 		const joiningTime = req.user.groups.filter(
-			(ele) => ele.groupID.toString() == groupID.toString()
+			(ele) => ele.groupID.toString() == groupID.toString(),
 		)[0].joinedAt;
 
 		const messagesAfterJoining = messages.filter(
-			(message) => message.createdAt > joiningTime
+			(message) => message.createdAt > joiningTime,
 		);
 
 		res.status(200).json(messagesAfterJoining);
 	} catch (error) {
-		console.log("Error in loading messages " + error);
+		console.error("Error in loading messages " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -155,13 +153,17 @@ export const sendGroupMessage = async (req, res) => {
 		const userID = req.user._id;
 		const { id: groupID } = req.params;
 		const text = req.body.text;
-
+		const recieverID = req.body.recieverID;
+		
 		const group = await Group.findOne({ _id: groupID });
 		if (!group) {
 			res.status(400).json({ message: "Group not found" });
 			return;
 		}
-		if (!group.members.includes(userID)) {
+		if (
+			!group.members.some((id) => id.toString() === userID.toString()) ||
+			!group.members.some((id) => id.toString() === recieverID)
+		) {
 			res.status(400).json({ message: "Group not found" });
 			return;
 		}
@@ -169,8 +171,9 @@ export const sendGroupMessage = async (req, res) => {
 		let finalImageURL = "";
 		if (req.file) {
 			const uploadRes = await cloudinary.uploader.upload(req.file.path, {
-				folder: "chat-app/group-messages",
+				folder: "chat-app/messages",
 				transformation: [{ quality: "auto" }],
+				resource_type: "raw",
 			});
 
 			finalImageURL = uploadRes.secure_url;
@@ -178,36 +181,30 @@ export const sendGroupMessage = async (req, res) => {
 		}
 		const message = new GroupMessage({
 			senderID: userID,
-			recieverID: groupID,
+			recieverID: recieverID,
+			groupID: groupID,
 			text,
 			image: finalImageURL,
 		});
 		await message.save();
-		message.senderID = req.user;
 
 		await LastGroupMessage.findOneAndUpdate(
 			{ groupID },
 			{ groupID },
-			{ upsert: true }
+			{ upsert: true },
 		);
 
-		const members = group.members;
-        
-		await Promise.all(members.forEach(async(member) => {
-			if (member.toString() !== req.user._id.toString()) {
-				const recieverSocketId = await getRecieverSocketId(member);
-				if (recieverSocketId) {
-					io.to(recieverSocketId).emit("newMessage", {
-						type: "group",
-						message: message,
-					});
-				}
-			}
-		}));
-		message.senderID = req.user;
+		const recieverSocketId = await getRecieverSocketId(recieverID);
+		if (recieverSocketId) {
+			io.to(recieverSocketId).emit("newMessage", {
+				type: "group",
+				message: message,
+			});
+		}
+
 		res.status(200).json(message);
 	} catch (error) {
-		console.log("Error in sending message " + error);
+		console.error("Error in sending message ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -223,18 +220,19 @@ export const addTyping = async (req, res) => {
 			const members = (await Group.findById(gID).select("members"))
 				.members;
 
-            await Promise.all(
-			members.map(async(rID) => {
-				if (rID.toString() !== sID.toString()) {
-					const recieverSocketId = await getRecieverSocketId(rID);
-					if (recieverSocketId) {
-						io.to(recieverSocketId).emit("addTyping", {
-							group: true,
-							gID,
-						});
+			await Promise.all(
+				members.map(async (rID) => {
+					if (rID.toString() !== sID.toString()) {
+						const recieverSocketId = await getRecieverSocketId(rID);
+						if (recieverSocketId) {
+							io.to(recieverSocketId).emit("addTyping", {
+								group: true,
+								gID,
+							});
+						}
 					}
-				}
-			}));
+				}),
+			);
 		} else {
 			const { id: rID } = req.params;
 			const sID = req.user._id;
@@ -261,18 +259,19 @@ export const removeTyping = async (req, res) => {
 			const members = (await Group.findById(gID).select("members"))
 				.members;
 
-            await Promise.all(
-			members.map(async(rID) => {
-				if (rID.toString() !== sID.toString()) {
-					const recieverSocketId = await getRecieverSocketId(rID);
-					if (recieverSocketId) {
-						io.to(recieverSocketId).emit("removeTyping", {
-							group: true,
-							gID,
-						});
+			await Promise.all(
+				members.map(async (rID) => {
+					if (rID.toString() !== sID.toString()) {
+						const recieverSocketId = await getRecieverSocketId(rID);
+						if (recieverSocketId) {
+							io.to(recieverSocketId).emit("removeTyping", {
+								group: true,
+								gID,
+							});
+						}
 					}
-				}
-			}));
+				}),
+			);
 		} else {
 			const { id: rID } = req.params;
 			const sID = req.user._id;

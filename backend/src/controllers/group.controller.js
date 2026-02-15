@@ -30,7 +30,7 @@ export const groupsSidebar = async (req, res) => {
 
 		res.status(200).json(sortedGroups);
 	} catch (error) {
-		console.log("Error in loading side users " + error);
+		console.error("Error in loading side users " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -53,7 +53,7 @@ export const groupInfo = async (req, res) => {
 		);
 		res.status(200).json(resGroup);
 	} catch (error) {
-		console.log("Error in getting group info " + error);
+		console.error("Error in getting group info " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -93,7 +93,7 @@ export const createGroup = async (req, res) => {
 		await group.save();
 		res.status(201).json(group);
 	} catch (error) {
-		console.log("Error in loading side users " + error);
+		console.error("Error in creating group " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -115,7 +115,7 @@ export const getMembers = async (req, res) => {
 			.populate("members", "-password");
 		res.status(200).json(members);
 	} catch (error) {
-		console.log("Error in getting members " + error);
+		console.error("Error in getting members " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -157,7 +157,7 @@ export const changePic = async (req, res) => {
 
 		res.status(200).json(updatedInfo);
 	} catch (error) {
-		console.log("Error in changing Picture " + error);
+		console.error("Error in changing Picture " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -187,7 +187,7 @@ export const changeName = async (req, res) => {
 		).populate("members", "-password");
 		res.status(200).json(updatedInfo);
 	} catch (error) {
-		console.log("Error in changing name " + error);
+		console.error("Error in changing name " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -212,7 +212,7 @@ export const changeDescription = async (req, res) => {
 		).populate("members", "-password");
 		res.status(200).json(updatedInfo);
 	} catch (error) {
-		console.log("Error in changing description " + error);
+		console.error("Error in changing description " , error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -287,7 +287,7 @@ export const makeAdmin = async (req, res) => {
 
 		res.status(200).json(updatedInfo);
 	} catch (error) {
-		console.log("Error in adding member ", error);
+		console.error("Error in making admin ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -326,7 +326,7 @@ export const removeMember = async (req, res) => {
 
 		res.status(200).json(updatedInfo);
 	} catch (error) {
-		console.log("Error in removing member ", error);
+		console.error("Error in removing member ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -349,7 +349,7 @@ export const exitGroup = async (req, res) => {
 		);
 		res.status(200).json({ message: "Successfully exited the group" });
 	} catch (error) {
-		console.log("Error in exiting group ", error);
+		console.error("Error in exiting group ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };

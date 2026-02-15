@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast, { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./authStore";
-import { useMessageStore } from "./messageStore";
 import { useGlobalStore } from "./globalStore";
 import { Truck } from "lucide-react";
 
@@ -32,7 +30,7 @@ export const useGroupStore = create((set, get) => ({
 				"Group create successfully , you can change description and picture"
 			);
 		} catch (error) {
-			console.log(error);
+			console.error("Error creating group", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -53,7 +51,7 @@ export const useGroupStore = create((set, get) => ({
             
             toast.success("Group name changed successfully");
 		} catch (error) {
-			console.log(error);
+			console.error("Error changing group name", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -69,7 +67,7 @@ export const useGroupStore = create((set, get) => ({
             
             toast.success("Group description changed successfully");
 		} catch (error) {
-			console.log(error);
+			console.error("Error changing group description", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -91,7 +89,7 @@ export const useGroupStore = create((set, get) => ({
 
             toast.success("Group pic changed successfully");
 		} catch (error) {
-			console.log(error);
+			console.error("Error changing group pic", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -102,7 +100,7 @@ export const useGroupStore = create((set, get) => ({
 			const res = await axiosInstance.get(`/group/${groupID}/info`);
 			set({ info: res.data });
 		} catch (error) {
-			console.log(error);
+			console.error("Error getting group info", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -124,7 +122,7 @@ export const useGroupStore = create((set, get) => ({
 
             toast.success("Successfully added members");
 		} catch (error) {
-			console.log(error);
+			console.error("Error adding members", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -143,7 +141,7 @@ export const useGroupStore = create((set, get) => ({
 			set({ info: res.data });
 			toast.success("Successfully removed member");
 		} catch (error) {
-			console.log(error);
+			console.error("Error removing member", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -165,7 +163,7 @@ export const useGroupStore = create((set, get) => ({
             
 			toast.success("Successfully made admin");
 		} catch (error) {
-			console.log(error);
+			console.error("Error making admin", error);
 			toast.error(error.response?.data?.message);
 		}
 	},
@@ -173,7 +171,7 @@ export const useGroupStore = create((set, get) => ({
 		try {
 			const groupID = useGlobalStore.getState().selectedGroup?._id;
 			if (!groupID) return;
-			const res = await axiosInstance.delete(
+			await axiosInstance.delete(
 				`/group/${groupID}/exit-group`
 			);
 
@@ -185,7 +183,7 @@ export const useGroupStore = create((set, get) => ({
             
 			toast.success("Successfully exited the group");
 		} catch (error) {
-			console.log(error);
+			console.error("Error exiting group", error);
 			toast.error(error.response?.data?.message);
 		}
 	},

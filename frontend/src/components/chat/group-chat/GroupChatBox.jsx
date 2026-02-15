@@ -62,8 +62,8 @@ const Chatbox = () => {
 		setImage(null);
 		setFile(null);
 	};
-	const handleSend = (e) => {
-		sendMessage(text, file);
+	const handleSend = async (e) => {
+		await sendMessage(text, file);
 		setText("");
 		setFile(null);
 		setImage(null);
@@ -253,7 +253,7 @@ const Chatbox = () => {
 									</span>
 								</div>
 							)}
-							{item.senderID._id !== authUser._id ? (
+							{item.senderID !== authUser._id ? (
 								<div className="flex flex-col p-1 ">
 									<div className="flex mx-1">
 										<div>
@@ -275,10 +275,18 @@ const Chatbox = () => {
 										<div
 											className="text-sky-700 hover:cursor-pointer hover:underline hover:text-purple-600 "
 											onClick={() => {
-												setSelectedUser(item.senderID);
+												setSelectedUser(
+                                                    useGlobalStore.getState().users.find(
+                                                        (user) =>
+                                                            user._id ===
+                                                            item.senderID
+                                                    ) 
+                                                );
 											}}
 										>
-											{item.senderID.name}
+											{useGlobalStore.getState().users.find(
+                                                (user) =>
+                                                    user._id === item.senderID)?.name || "Unknown User"}
 										</div>
 									</div>
 									<div

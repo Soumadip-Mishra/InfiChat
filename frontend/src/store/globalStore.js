@@ -25,10 +25,9 @@ export const useGlobalStore = create((set, get) => ({
 				"/message/users-sidebar"
 			);
 			const allusers = allusersResponse.data;
-
 			set({ users: allusers });
 		} catch (error) {
-			console.log("Error in loading users", error);
+			console.error("Error in loading users", error);
 		}
 	},
 	getGroups: async () => {
@@ -37,7 +36,7 @@ export const useGlobalStore = create((set, get) => ({
 			const allGroups = allGroupsResponse.data;
 			set({ groups: allGroups });
 		} catch (error) {
-			console.log("Error in loading users", error);
+			console.error("Error in loading groups", error);
 		}
 	},
 	setUserFirst: async (userID) => {
@@ -57,7 +56,7 @@ export const useGlobalStore = create((set, get) => ({
 			set({ selectedUser: item });
 			set({ selectedGroup: null });
 		} catch (error) {
-			console.log("Error in loading user", error);
+			console.error("Error in loading user", error);
 		}
 	},
 	setSelectedGroup: async (item) => {
@@ -66,14 +65,14 @@ export const useGlobalStore = create((set, get) => ({
 			useGroupStore.getState().setInfoView(false);
 			set({ selectedUser: null });
 		} catch (error) {
-			console.log("Error in loading group", error);
+			console.error("Error in loading group", error);
 		}
 	},
 	setFullScreenImage: async (item) => {
 		try {
 			set({ fullScreenImage: item });
 		} catch (error) {
-			console.log("Error in loading user", error);
+			console.error("Error in loading full screen image", error);
 		}
 	},
 }));

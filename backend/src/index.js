@@ -31,6 +31,6 @@ app.use("/api/ai-message", aiMessageRoutes);
 app.use("/api/group", groupRoutes);
 
 server.listen(PORT, () => {
-	console.log("App listening at port " + PORT);
+	console.log("App listening at port " , PORT);
 	connectDB();
 });

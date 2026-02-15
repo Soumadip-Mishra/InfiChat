@@ -32,7 +32,7 @@ export const useAuthStore =  create((set,get) => ({
             set({authUser:res.data});
             get().connectSocket();
         } catch (error) {
-            console.log("Error in loading user",error);
+            console.error("Error in loading user",error);
             set({ authUser: null });
         }finally{
             set({isCheckingAuth:false});
@@ -76,7 +76,7 @@ export const useAuthStore =  create((set,get) => ({
             get().disConnectSocket();
             toast.success("Logged out successfully");
         } catch (error) {
-            console.log(error);
+            console.error("Error in logging out", error);
             toast.error(error.response.data.message);
         }
     },
@@ -85,7 +85,7 @@ export const useAuthStore =  create((set,get) => ({
             const res = await axiosInstance.post("auth/change/profile-pic", formData);
               set({authUser:res.data});
         } catch (error) {
-            console.log(error);
+            console.error("Error in changing profile pic", error);
             
         }
     },

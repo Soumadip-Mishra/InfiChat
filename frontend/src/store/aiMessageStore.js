@@ -15,7 +15,7 @@ export const useAiMessageStore = create((set, get) => ({
 			set({ messages: res.data });
             
 		} catch (error) {
-			console.log("error", error);
+			console.error("error fetching messages", error);
 		}
 	},
 	sendMessage: async (text, file) => {
@@ -40,7 +40,7 @@ export const useAiMessageStore = create((set, get) => ({
 			set({ messages: [...get().messages, res2.data] });
             set({aiThinking:false})
 		} catch (error) {
-			console.log("error", error);
+			console.error("error in sending message", error);
 		}
 	},
     

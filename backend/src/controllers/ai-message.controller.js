@@ -12,7 +12,7 @@ export const getAiMessages = async (req, res) => {
 		}).sort({ createdAt: 1 });
 		res.status(200).json(allMessages);
 	} catch (error) {
-		console.log(error);
+		console.error("Error fetching AI messages:", error);
 	}
 };
 

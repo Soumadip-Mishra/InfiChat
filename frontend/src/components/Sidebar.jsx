@@ -32,17 +32,18 @@ export const Sidebar = () => {
 	};
 	const handleGroupClick = (e) => {
 		setSelectedGroup(groups[e.currentTarget.id]);
+        
 	};
 	const handleTextChange = (e) => {
 		setSideBarText(e.target.value);
 	};
-	const handleCross = (e) => {
+	const handleCross = () => {
 		setSideBarText("");
 	};
 	useEffect(() => {
 		getUsers();
 		getGroups();
-	}, [sidebarType]);
+	}, [sidebarType,getUsers,getGroups]);
 
 	return (
 		<div className="h-full w-full relative">
@@ -87,9 +88,6 @@ export const Sidebar = () => {
 									sidebarType === "user" ? "User" : "Group"
 								}`}
 								className="outline-0 p-0 flex-1  min-w-0 "
-								onKeyDown={(e) =>
-									e.key === "Enter" ? handleSend() : ""
-								}
 							/>
 						</div>
 						{sideBarText && (

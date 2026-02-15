@@ -54,7 +54,7 @@ export const signUp = async (req, res) => {
         newUser.privateKey = privateKey;
 		return res.status(201).json(newUser);
 	} catch (error) {
-		console.log("Error in sign-up ", error);
+		console.error("Error in sign-up ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -79,7 +79,7 @@ export const logIn = async (req, res) => {
         user.privateKey = decryptedPrivateKey;
 		return res.status(201).json(user);
 	} catch (error) {
-		console.log("Error in login ", error);
+		console.error("Error in login ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -92,7 +92,7 @@ export const logOut = async(req, res) => {
 		res.cookie("jwt", "", { maxAge: 0 });
 		res.status(200).json({ message: "logged out successfully" });
 	} catch (error) {
-		console.log("Error in log-out ", error);
+		console.error("Error in log-out ", error);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -101,7 +101,7 @@ export const checkAuth = async(req, res) => {
 	try {
 		res.status(200).json(req.user);
 	} catch (error) {
-		console.log("Error in checkAuth ", error.message);
+		console.error("Error in checkAuth ", error.message);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
@@ -125,7 +125,7 @@ export const changePic = async (req, res) => {
 		fs.unlinkSync(filePath);
 		res.status(200).json(user);
 	} catch (error) {
-		console.log("Error in changing profile pic", error);
+		console.error("Error in changing profile pic", error);
 		res.status(500).json({ message: "Internal server error" });
 	}
 };
@@ -147,7 +147,7 @@ export const changeName = async (req, res) => {
 		res.status(200).json(user);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
-		console.log("Error in changing name", error);
+		console.error("Error in changing name", error);
 	}
 };
 
@@ -186,6 +186,6 @@ export const changePassword = async (req, res) => {
 		res.status(200).json(user);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
-		console.log("Error in changing password", error);
+		console.error("Error in changing password", error);
 	}
 };

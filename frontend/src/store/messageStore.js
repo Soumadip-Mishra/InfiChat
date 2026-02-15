@@ -29,42 +29,94 @@ export const useMessageStore = create((set, get) => ({
 		)
 			return;
 		try {
-			const { selectedUser, selectedGroup } = useGlobalStore.getState();
-			const res = selectedUser
-				? await axiosInstance.get(
-						`/message/private/get-message/${selectedUser._id}`,
-					)
-				: await axiosInstance.get(
-						`/message/group/${selectedGroup._id}/get-message`,
-					);
+			if (useGlobalStore.getState().selectedUser)
+				get().fetchPrivateMessages();
+			else if (useGlobalStore.getState().selectedGroup)
+				get().fetchGroupMessages();
+		} catch (error) {
+			console.error("Error in fetching messages", error);
+		}
+	},
+	fetchPrivateMessages: async () => {
+		try {
+			const { selectedUser } = useGlobalStore.getState();
+			const res = await axiosInstance.get(
+				`/message/private/get-message/${selectedUser._id}`,
+			);
 			let currMessages = res.data;
-			if (selectedUser) {
-				const sharedSecret = await computeSharedSecret(
-					localStorage.getItem("privateKey"),
-					selectedUser.publicKey,
-				);
 
-				currMessages = await Promise.all(
-					currMessages.map(async (message) => {
-						if (message.text) {
-							message.text = await decryptMessage(
-								message.text,
-								sharedSecret,
-							);
-						}
-						if (message.image) {
-							message.image = await decryptImage(
-								message.image,
-								sharedSecret,
-							);
-						}
-						return message;
-					}),
-				);
-			}
+			const sharedSecret = await computeSharedSecret(
+				localStorage.getItem("privateKey"),
+				selectedUser.publicKey,
+			);
+
+			currMessages = await Promise.all(
+				currMessages.map(async (message) => {
+					if (message.text) {
+						message.text = await decryptMessage(
+							message.text,
+							sharedSecret,
+						);
+					}
+					if (message.image) {
+						message.image = await decryptImage(
+							message.image,
+							sharedSecret,
+						);
+					}
+					return message;
+				}),
+			);
 			set({ messages: currMessages });
 		} catch (error) {
-			console.log("error", error);
+			console.error("Error in fetching private messages", error);
+		}
+	},
+	fetchGroupMessages: async () => {
+		try {
+			const { selectedGroup } = useGlobalStore.getState();
+			const res = await axiosInstance.get(
+				`/message/group/${selectedGroup._id}/get-message`,
+			);
+			let currMessages = res.data;
+
+			currMessages = await Promise.all(
+				currMessages.map(async (message) => {
+					let senderPublicKey = useGlobalStore
+						.getState()
+						.users.find(
+							(user) =>
+								user._id.toString() ===
+								message.senderID.toString(),
+						)?.publicKey;
+
+					if (!senderPublicKey)
+						senderPublicKey =
+							useAuthStore.getState().authUser.publicKey;
+
+					const sharedSecret = await computeSharedSecret(
+						localStorage.getItem("privateKey"),
+						senderPublicKey,
+					);
+					if (message.text) {
+						message.text = await decryptMessage(
+							message.text,
+							sharedSecret,
+						);
+					}
+					if (message.image) {
+						message.image = await decryptImage(
+							message.image,
+							sharedSecret,
+						);
+					}
+					return message;
+				}),
+			);
+
+			set({ messages: currMessages });
+		} catch (error) {
+			console.error("Error in fetching group messages", error);
 		}
 	},
 
@@ -73,64 +125,131 @@ export const useMessageStore = create((set, get) => ({
 			toast.error("Message cannot be empty");
 			return;
 		}
-		if (
-			!useGlobalStore.getState().selectedUser &&
-			!useGlobalStore.getState().selectedGroup
-		)
-			return;
 		try {
+			if (useGlobalStore.getState().selectedUser)
+				await get().sendPrivateMessage(text, file);
+			else if (useGlobalStore.getState().selectedGroup)
+				await get().sendGroupMessage(text, file);
+			return;
+		} catch (error) {
+			console.error("Error in sending message", error);
+		}
+	},
+	sendPrivateMessage: async (text, file) => {
+		try {
+			const { selectedUser, setUserFirst } = useGlobalStore.getState();
 			const formData = new FormData();
-			const { selectedUser, selectedGroup, setUserFirst, setGroupFirst } =
-				useGlobalStore.getState();
-
-			if (text && selectedUser) {
-				const sharedSecret = await computeSharedSecret(
-					localStorage.getItem("privateKey"),
-					selectedUser.publicKey,
-				);
+			const sharedSecret = await computeSharedSecret(
+				localStorage.getItem("privateKey"),
+				selectedUser.publicKey,
+			);
+			if (text) {
 				const encryptedMessage = await encryptMessage(
 					text,
 					sharedSecret,
 				);
 				formData.append("text", encryptedMessage);
 			}
-
-			if (file && selectedUser) {
-				const sharedSecret = await computeSharedSecret(
-					localStorage.getItem("privateKey"),
-					selectedUser.publicKey,
-				);
+			if (file) {
 				const encryptedFile = await encryptImage(file, sharedSecret);
 				formData.append("image", encryptedFile);
 			}
 
-			const res = selectedUser
-				? await axiosInstance.post(
-						`/message/private/send-message/${selectedUser._id}`,
-						formData,
-					)
-				: await axiosInstance.post(
-						`/message/group/${selectedGroup._id}/send-message`,
-						formData,
-					);
-
+			const res = await axiosInstance.post(
+				`/message/private/send-message/${selectedUser._id}`,
+				formData,
+			);
 			const currMessage = res.data;
 			currMessage.text = text;
-			const sharedSecret = await computeSharedSecret(
-				localStorage.getItem("privateKey"),
-				selectedUser ? selectedUser.publicKey : null,
-			);
 			currMessage.image = file
 				? await decryptImage(currMessage.image, sharedSecret)
 				: null;
-
-			set({ fullScreenImage: currMessage.image });
-
 			set({ messages: [...get().messages, currMessage] });
-			if (selectedUser) setUserFirst(selectedUser._id);
-			if (selectedGroup) setGroupFirst(selectedGroup._id);
+			setUserFirst(selectedUser._id);
 		} catch (error) {
-			console.log("Error in sending message", error);
+			console.error("Error in sending private message", error);
+		}
+	},
+	sendGroupMessage: async (text, file) => {
+		try {
+			const { selectedGroup, setGroupFirst } = useGlobalStore.getState();
+			await Promise.all(
+				selectedGroup.members.map(async (memberID) => {
+					const member = useGlobalStore
+						.getState()
+						.users.find(
+							(user) =>
+								user._id.toString() === memberID.toString(),
+						);
+					if (!member) return;
+					const formData = new FormData();
+					const sharedSecret = await computeSharedSecret(
+						localStorage.getItem("privateKey"),
+						member.publicKey,
+					);
+					if (text) {
+						const encryptedMessage = await encryptMessage(
+							text,
+							sharedSecret,
+						);
+						formData.append("text", encryptedMessage);
+					}
+					if (file) {
+						const encryptedFile = await encryptImage(
+							file,
+							sharedSecret,
+						);
+						formData.append("image", encryptedFile);
+					}
+
+					formData.append("recieverID", memberID);
+					await axiosInstance.post(
+						`/message/group/${selectedGroup._id}/send-message`,
+						formData,
+					);
+				}),
+			);
+
+			{
+				const formData = new FormData();
+				const sharedSecret = await computeSharedSecret(
+					localStorage.getItem("privateKey"),
+					useAuthStore.getState().authUser.publicKey,
+				);
+				if (text) {
+					const encryptedMessage = await encryptMessage(
+						text,
+						sharedSecret,
+					);
+					formData.append("text", encryptedMessage);
+				}
+				if (file) {
+					const encryptedFile = await encryptImage(
+						file,
+						sharedSecret,
+					);
+					formData.append("image", encryptedFile);
+				}
+
+				formData.append(
+					"recieverID",
+					useAuthStore.getState().authUser._id,
+				);
+
+				const res = await axiosInstance.post(
+					`/message/group/${selectedGroup._id}/send-message`,
+					formData,
+				);
+				const currMessage = res.data;
+				currMessage.text = text;
+				currMessage.image = file
+					? await decryptImage(currMessage.image, sharedSecret)
+					: null;
+				set({ messages: [...get().messages, currMessage] });
+				setGroupFirst(selectedGroup._id);
+			}
+		} catch (error) {
+			console.error("Error in sending group message", error);
 		}
 	},
 
@@ -149,7 +268,7 @@ export const useMessageStore = create((set, get) => ({
 				},
 			);
 		} catch (error) {
-			console.log("error", error);
+			console.error("Error in addTyping socket", error);
 		}
 	},
 
@@ -168,7 +287,7 @@ export const useMessageStore = create((set, get) => ({
 				},
 			);
 		} catch (error) {
-			console.log("error", error);
+			console.error("Error in removeTyping socket", error);
 		}
 	},
 
@@ -177,40 +296,31 @@ export const useMessageStore = create((set, get) => ({
 		socket.on("newMessage", async (newMessage) => {
 			const { selectedUser, selectedGroup, setUserFirst, setGroupFirst } =
 				useGlobalStore.getState();
+			const message = newMessage.message;
 
+			const senderPublicKey = useGlobalStore
+				.getState()
+				.users.find((user) => user._id === message.senderID)?.publicKey;
+
+			if (!senderPublicKey) return;
+
+			const sharedSecret = await computeSharedSecret(
+				localStorage.getItem("privateKey"),
+				senderPublicKey,
+			);
+			if (message.text) {
+				message.text = await decryptMessage(message.text, sharedSecret);
+			}
+			if (message.image) {
+				message.image = await decryptImage(message.image, sharedSecret);
+			}
 			if (newMessage.type === "user") {
-				const message = newMessage.message;
-
-				const senderPublicKey = useGlobalStore
-					.getState()
-					.users.find(
-						(user) => user._id === message.senderID,
-					).publicKey;
-
-				const sharedSecret = await computeSharedSecret(
-					localStorage.getItem("privateKey"),
-					senderPublicKey,
-				);
-				if (message.text) {
-					message.text = await decryptMessage(
-						message.text,
-						sharedSecret,
-					);
-				}
-				if (message.image) {
-					message.image = await decryptImage(
-						message.image,
-						sharedSecret,
-					);
-				}
-
 				setUserFirst(message.senderID);
 				if (selectedUser?._id === message.senderID)
 					set({ messages: [...get().messages, message] });
 			} else {
-				const message = newMessage.message;
-				setGroupFirst(message.recieverID);
-				if (selectedGroup?._id === message.recieverID)
+				setGroupFirst(message.groupID);
+				if (selectedGroup?._id === message.groupID)
 					set({ messages: [...get().messages, message] });
 			}
 		});
