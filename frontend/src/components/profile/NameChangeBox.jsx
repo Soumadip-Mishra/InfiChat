@@ -32,7 +32,7 @@ const NameChangeBox = () => {
 							}}
 							type="text"
 							className="border p-2 rounded"
-							placeholder="Sounit Bose"
+							placeholder="Soumadip Mishra"
 						/>
 					</div>
 				</div>

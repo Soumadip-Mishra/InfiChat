@@ -45,7 +45,7 @@ const SignupPage = () => {
 								}}
 								type="email"
 								className="border p-2 rounded"
-								placeholder="sounitb02@gmail.com"
+								placeholder="soumadipm@gmail.com"
 							/>
 						</div>
 						<div>
@@ -59,7 +59,7 @@ const SignupPage = () => {
 								}}
 								type="text"
 								className="border p-2 rounded"
-								placeholder="Sounit Bose"
+								placeholder="Soumadip Mishra"
 							/>
 						</div>
 						<div>

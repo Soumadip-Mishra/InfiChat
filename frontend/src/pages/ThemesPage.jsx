@@ -99,11 +99,11 @@ const ThemesPage = () => {
 								alt=""
 								className="size-10 rounded-full"
 							/>
-							<span>Shruti</span>
+							<span>Alice</span>
 						</div>
 						<div>
 							<div className="mt-20 bg-base-200 p-2 rounded-2xl flex gap-5 items-center mr-[35%]">
-								Hello Sounit, how you are doing? Long time no
+								Hello Bob, how you are doing? Long time no
 								see.
 							</div>
 							<div className="my-12 bg-accent text-accent-content p-2 rounded-2xl flex gap-5 items-center ml-[35%]">

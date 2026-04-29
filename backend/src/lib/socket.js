@@ -21,6 +21,7 @@ const subClient = pubClient.duplicate();
 
 pubClient.on("error", (error) => console.error("REDIS ERROR", error));
 subClient.on("error", (error) => console.error("REDIS ERROR", error));
+await redis.del("online_users");
 
 const io = new Server(server, {
 	cors: {

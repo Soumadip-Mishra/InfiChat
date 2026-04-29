@@ -47,7 +47,7 @@ const LoginPage = () => {
 								}}
 								type="email"
 								className="border p-2 rounded"
-								placeholder="sounitb02@gmail.com"
+								placeholder="soumadipm@gmail.com"
 							/>
 						</div>
 						<div>
